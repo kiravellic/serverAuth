@@ -3,7 +3,7 @@ using JWT;
 using JWT.Algorithms;
 using JWT.Serializers;
 
-namespace Server.Auth.BLL;
+namespace Server.Auth.BLL.JWT;
 
 public class GenerateJwt
 {
@@ -16,9 +16,9 @@ public class GenerateJwt
         var base64Encoder = new JwtBase64UrlEncoder();
         _jwtEncoder = new JwtEncoder(algorithm, serializer, base64Encoder);
     }
-    public string IssuingJWT(string user)
+    public string IssuingJwt(string user)
     {
-        Dictionary<string, object> claims = new Dictionary<string, object>
+        var claims = new Dictionary<string, object>
         {
             // JSON representation of the user Reference with ID and display name
             { "username", user },
@@ -27,7 +27,7 @@ public class GenerateJwt
             { "role", "admin"}
         };
 
-        string token = _jwtEncoder.Encode(claims, "Your Secret Securtity key string"); // Put this key in config
+        var token = _jwtEncoder.Encode(claims, "Your Secret Securtity key string"); // Put this key in config
         return token;
     }
 }

@@ -1,6 +1,8 @@
 using System;
+using System.Data;
 using System.IO;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -13,10 +15,17 @@ using Server.Auth.BLL.JWT;
 
 namespace Server.Auth.Controller;
 
-public static class Auth
+public sealed class AuthAndPlay
 {
+    private readonly IDbConnection _dbConnection;
+
+    public AuthAndPlay(IDbConnection dbConnection)
+    {
+        _dbConnection = dbConnection;
+    }
+    
     [FunctionName(nameof(UserAuthentication))]
-    public static async Task<IActionResult> UserAuthentication(
+    public async Task<IActionResult> UserAuthentication(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth")] 
         UserCredentials userCredentials,
         ILogger log)
@@ -38,27 +47,21 @@ public static class Auth
     }
 
     [FunctionName(nameof(GetData))]
-    public static async Task<IActionResult> GetData(
+    public async Task<IActionResult> GetData(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "data")] HttpRequest req,
         ILogger log)
     {
         // Check if we have authentication info.
-        ValidateJwt auth = new ValidateJwt(req);
+        var auth = new ValidateJwt(req);
 
         if (!auth.IsValid)
         {
             return new UnauthorizedResult(); // No authentication info.
         }
 
-        string postData = await req.ReadAsStringAsync();
-
+        var postData = await req.ReadAsStringAsync();
+        
+        //
         return new OkObjectResult($"{postData}");
-
     }
-}
-
-public class UserCredentials
-{
-    public string User { get; set; }
-    public string Password { get; set; }
 }

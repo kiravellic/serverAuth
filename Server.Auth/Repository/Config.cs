@@ -1,6 +1,6 @@
 namespace Server.Auth.Repository;
 
-public class Config
+public sealed class Config
 {
-    
+    public string ConnectionString { get; set; }
 }
