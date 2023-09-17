@@ -30,7 +30,7 @@ public sealed class UserRepository : IUserRepository
                 id as UserId,
                 user_name as UserName,
                 games_count as GamesCount
-            from game.User where user_name = @{nameof(nickName)}";
+            from database.public.user_info where user_name = @{nameof(nickName)}";
         
         var userModel = await _dbConnection.QueryFirstAsync<UserInfoDbo>(
             new CommandDefinition(

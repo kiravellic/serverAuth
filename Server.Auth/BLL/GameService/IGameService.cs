@@ -7,10 +7,14 @@ namespace Server.Auth.BLL.GameService;
 public interface IGameService
 {
     /// <summary>
-    /// start Game
+    /// play game
     /// </summary>
-    /// <param name="nickName"></param>
+    /// <param name="nickName">user name</param>
+    /// <param name="userNum"> number that was predicted by user</param>
     /// <param name="ct"></param>
-    /// <returns></returns>
-    public Task StartGame(string nickName, CancellationToken ct);
+    /// <returns>the actual number or null if won</returns>
+    public Task<long?> PlayGame(
+        string nickName,
+        long userNum,
+        CancellationToken ct);
 }
