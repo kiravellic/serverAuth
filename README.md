@@ -51,4 +51,13 @@ create table if not exists games_info
 create index idx_username on games_info(user_id);
 
 ```
-4. а дальше я сама хз
+4. дальше запустите конфигурацию по пути ./run/Server.Auth.xml
+5. перейдите по юрл http://localhost:7071/api/swagger/ui
+
+играйте только не забутье замочек с авторизацией на хендлере после логина:
+![Снимок экрана 2023-09-18 в 14 18 01](https://github.com/kiravellic/serverAuth/assets/124602696/9039ddff-51b2-4045-8c64-6927314538b4)
+
+
+![Снимок экрана 2023-09-18 в 14 18 19](https://github.com/kiravellic/serverAuth/assets/124602696/70478913-0165-418b-9323-8f8179c8adff)
+
+![Снимок экрана 2023-09-18 в 14 18 28](https://github.com/kiravellic/serverAuth/assets/124602696/45466009-cac2-45b4-b928-413a61e1b037)
