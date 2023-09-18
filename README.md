@@ -9,7 +9,7 @@
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-        "Config:ConnectionString" : "Host=127.0.0.1;Username=postgres;Password=mysecretpassword"
+        "Config:ConnectionString" : "Host=127.0.0.1;Username=postgres;Password=mysecretpassword;Database=database"
     }
   }
 ```
