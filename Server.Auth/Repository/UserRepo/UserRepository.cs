@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Security.Authentication;
 using System.Threading;
@@ -11,14 +12,15 @@ namespace Server.Auth.Repository.UserRepo;
 
 public sealed class UserRepository : IUserRepository
 {
-    private readonly DbConnection _dbConnection;
+    private readonly IDbConnection _dbConnection;
 
-    public UserRepository(DbConnection dbConnection)
+    public UserRepository(IDbConnection dbConnection)
     {
         _dbConnection = dbConnection;
     }
 
-    public async Task<UserInfoModel> GetUserInfoModel(string nickName,
+    public async Task<UserInfoModel> GetUserInfoModel(
+        string nickName,
         CancellationToken ct)
     {
         if (string.IsNullOrEmpty(nickName))

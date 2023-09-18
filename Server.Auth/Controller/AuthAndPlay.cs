@@ -39,7 +39,7 @@ public sealed class AuthAndPlay
     [FunctionName(nameof(UserAuthentication))]
     public async Task<IActionResult> UserAuthentication(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "auth")]
-        UserCredentials userCredentials,
+        [RequestBodyType(typeof(UserCredentials), "creds")] UserCredentials userCredentials,
         ILogger log)
     {
         return await Login(
@@ -50,9 +50,8 @@ public sealed class AuthAndPlay
     [FunctionName(nameof(PlayGame))]
     public async Task<IActionResult> PlayGame(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "play")]
-        HttpRequest req,
-        ILogger log,
-        CancellationToken ct)
+        [RequestBodyType(typeof(UserInfoDto), "userInfo")] HttpRequest req,
+        ILogger log)
     {
         var userInfo = await AuthAndGetBody<UserInfoDto>(req);
         
@@ -64,7 +63,7 @@ public sealed class AuthAndPlay
         var number = await _gameService.PlayGame(
             nickName: userInfo.UserName,
             userNum: userInfo.Number.Value,
-            ct: ct);
+            ct: CancellationToken.None);
 
         return FormatResult(number, userInfo);
     }
@@ -72,13 +71,13 @@ public sealed class AuthAndPlay
     [FunctionName(nameof(GetInfo))]
     public async Task<IActionResult> GetInfo(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "info")]
-        HttpRequest req,
+        [RequestBodyType(typeof(UserInfoDto), "userInfoWithNumber")] HttpRequest req,
         ILogger log,
         CancellationToken ct)
     {
         var userInfo = await AuthAndGetBody<UserInfoDto>(req);
 
-        var userInfoFromDb = await _userRepository.GetUserInfoModel(userInfo.UserName, ct);
+        var userInfoFromDb = await _userRepository.GetUserInfoModel(userInfo.UserName.ToLower(), ct);
 
         return new OkObjectResult(userInfoFromDb);
     }
@@ -100,10 +99,14 @@ public sealed class AuthAndPlay
 
 
     #region Private
-    private static async Task<IActionResult> Login(UserCredentials userCredentials, ILogger log)
+    private static async Task<IActionResult> Login(UserCredentials? userCredentials, ILogger log)
     {
         log.LogInformation("C# HTTP trigger function processed a request.");
         // TODO: Perform custom authentication here; we're just using a simple hard coded check for this example
+        if (userCredentials == null)
+        {
+            throw new Exception("no user cradentials");
+        }
         var authenticated = userCredentials?.User.Equals("Jay", StringComparison.InvariantCultureIgnoreCase) ?? false;
 
         if (!authenticated)

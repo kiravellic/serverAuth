@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Dapper;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using Server.Auth.BLL.Models;
 using Server.Auth.Repository.DapperDbos;
@@ -17,15 +18,17 @@ namespace Server.Auth.Repository.GameRepository;
 public class GameRepository : IGameRepository
 {
     private readonly IDbConnection _dbConnection;
+    private readonly IOptions<Config> _config;
 
-    public GameRepository(IDbConnection dbConnection)
+    public GameRepository(IDbConnection dbConnection, IOptions<Config> config)
     {
         _dbConnection = dbConnection;
+        _config = config;
     }
     
     public async Task SaveGame(GameModel game, CancellationToken ct)
     {
-        await using (var connection = new NpgsqlConnection(_dbConnection.ConnectionString))
+        await using (var connection = new NpgsqlConnection(_config.Value.ConnectionString))
         {
             await connection.OpenAsync(ct);
             await using (var transaction = await connection.BeginTransactionAsync(ct))
@@ -92,7 +95,7 @@ public class GameRepository : IGameRepository
             throw new ArgumentException("provide states of games");
         }
         
-        var gameStatuses = gameStates.ToArray();
+        var gameStatuses = gameStates.Select(x=>(int)x).ToArray();
 
         const string query = @$"
             select
@@ -101,7 +104,7 @@ public class GameRepository : IGameRepository
             user_id as UserId,
             number as Number
         from database.public.games_info
-        where user_id = @{nameof(userId)} and game_state in (unnest(@{nameof(gameStatuses)}));";
+        where user_id = @{nameof(userId)} and game_state in (select unnest(@{nameof(gameStatuses)}));";
     
         var games = connection == null
             ? await _dbConnection.QueryAsync<GameDbo>(

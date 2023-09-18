@@ -27,7 +27,7 @@ public class GenerateJwt
             { "role", "admin"}
         };
 
-        var token = _jwtEncoder.Encode(claims, "Your Secret Securtity key string"); // Put this key in config
+        var token = _jwtEncoder.Encode(claims, "dumb for secret"); // Put this key in config
         return token;
     }
 }
